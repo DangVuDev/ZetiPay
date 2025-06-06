@@ -1,0 +1,300 @@
+basePath: /api
+definitions:
+  handlers.AssetsResponse:
+    properties:
+      address:
+        type: string
+      dbTransactions:
+        items:
+          $ref: '#/definitions/models.Transaction'
+        type: array
+      ethBalance:
+        type: string
+      tokenBalances:
+        additionalProperties:
+          type: string
+        type: object
+      transactions:
+        items:
+          additionalProperties:
+            type: string
+          type: object
+        type: array
+    type: object
+  handlers.GasEstimateRequest:
+    properties:
+      amount:
+        type: string
+      fromAddress:
+        type: string
+      toAddress:
+        type: string
+      tokenAddress:
+        type: string
+    required:
+    - amount
+    - fromAddress
+    - toAddress
+    type: object
+  handlers.GasEstimateResponse:
+    properties:
+      gasEstimate:
+        type: string
+    type: object
+  handlers.TransferETHRequest:
+    properties:
+      amount:
+        type: string
+      fromAddress:
+        type: string
+      signature:
+        type: string
+      toAddress:
+        type: string
+    required:
+    - amount
+    - fromAddress
+    - signature
+    - toAddress
+    type: object
+  handlers.TransferResponse:
+    properties:
+      transactionHash:
+        type: string
+    type: object
+  handlers.TransferTokenRequest:
+    properties:
+      amount:
+        type: string
+      fromAddress:
+        type: string
+      signature:
+        type: string
+      toAddress:
+        type: string
+      tokenAddress:
+        type: string
+    required:
+    - amount
+    - fromAddress
+    - signature
+    - toAddress
+    - tokenAddress
+    type: object
+  handlers.WalletConnectRequest:
+    properties:
+      address:
+        type: string
+    required:
+    - address
+    type: object
+  handlers.WalletConnectResponse:
+    properties:
+      address:
+        type: string
+      ethBalance:
+        type: string
+      tokenBalances:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  models.Transaction:
+    properties:
+      amount:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      toAddress:
+        type: string
+      tokenAddress:
+        type: string
+      txHash:
+        type: string
+      type:
+        type: string
+      walletAddress:
+        type: string
+    type: object
+host: localhost:5000
+info:
+  contact: {}
+  description: ZetiPay REST API for wallet connection, crypto transfers, and asset
+    management.
+  title: ZetiPay API
+  version: "1.0"
+paths:
+  /assets/{address}:
+    get:
+      description: Retrieves ETH and token balances, transaction history
+      parameters:
+      - description: Wallet address
+        in: path
+        name: address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.AssetsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get wallet assets
+      tags:
+      - Assets
+  /gas/estimate:
+    post:
+      consumes:
+      - application/json
+      description: Estimates gas for ETH or token transfer
+      parameters:
+      - description: Transaction details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.GasEstimateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GasEstimateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Estimate gas for a transaction
+      tags:
+      - Assets
+  /transfer/eth:
+    post:
+      consumes:
+      - application/json
+      description: Initiates an Ethereum transfer
+      parameters:
+      - description: ETH transfer details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TransferETHRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.TransferResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Transfer ETH
+      tags:
+      - Transfer
+  /transfer/token:
+    post:
+      consumes:
+      - application/json
+      description: Initiates an ERC-20 token transfer
+      parameters:
+      - description: Token transfer details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TransferTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.TransferResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Transfer ERC-20 token
+      tags:
+      - Transfer
+  /wallet/connect:
+    post:
+      consumes:
+      - application/json
+      description: Connects an Ethereum wallet and retrieves its balances
+      parameters:
+      - description: Wallet address
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.WalletConnectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.WalletConnectResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Connect a wallet
+      tags:
+      - Wallet
+swagger: "2.0"
